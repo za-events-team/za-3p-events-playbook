@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What Constitutes a 3P Event — Amazon ZA</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:      #0d1117;
+      --bg-surface:   #161b22;
+      --bg-card:      #1c2330;
+      --bg-card-hover:#1f2937;
+      --border:       #30363d;
+      --blue:         #1a8fe3;
+      --blue-light:   #58b4ff;
+      --orange:       #ff9900;
+      --orange-light: #ffb84d;
+      --text-primary: #e6edf3;
+      --text-muted:   #8b949e;
+      --radius:       10px;
+      --transition:   0.2s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Amazon Ember", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+
+    a { color: var(--blue-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 60px;
+      background: #0a0e14; border-bottom: 1px solid var(--border); gap: 1rem;
+    }
+    .navbar-brand {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 1.05rem; font-weight: 700; color: var(--text-primary); white-space: nowrap;
+    }
+    .navbar-brand .logo-icon {
+      width: 32px; height: 32px; background: var(--orange); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
+    }
+    .navbar-brand span.highlight { color: var(--orange); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 1rem; border-radius: 6px; font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; transition: all var(--transition); border: none;
+    }
+    .btn-ghost {
+      background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--bg-surface); color: var(--text-primary); text-decoration: none; }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      max-width: 900px; margin: 0 auto;
+      padding: 1.25rem 2rem 0;
+      font-size: 0.82rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--blue-light); }
+    .breadcrumb span { color: var(--border); }
+
+    /* ── Page Hero ── */
+    .page-hero {
+      max-width: 900px; margin: 0 auto;
+      padding: 2.5rem 2rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-tag {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,153,0,0.12); border: 1px solid rgba(255,153,0,0.3);
+      color: var(--orange); padding: 0.2rem 0.65rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .page-hero h1 {
+      font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 800;
+      line-height: 1.25; margin-bottom: 0.75rem; letter-spacing: -0.02em;
+    }
+    .page-hero h1 .accent { color: var(--orange); }
+    .page-hero p {
+      font-size: 1rem; color: var(--text-muted); max-width: 680px;
+    }
+
+    /* ── Content ── */
+    .content {
+      max-width: 900px; margin: 0 auto;
+      padding: 2.5rem 2rem 4rem;
+      display: flex; flex-direction: column; gap: 3rem;
+    }
+
+    /* ── Section block ── */
+    .content-block h2 {
+      font-size: 1.15rem; font-weight: 700;
+      margin-bottom: 1rem; color: var(--text-primary);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .content-block h2 .dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--orange); flex-shrink: 0;
+    }
+    .content-block p {
+      color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .content-block p:last-child { margin-bottom: 0; }
+
+    /* ── Image upload slot ── */
+    .image-slot {
+      width: 100%;
+      min-height: 220px;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.5rem; padding: 2rem;
+      cursor: pointer; transition: border-color var(--transition), background var(--transition);
+      margin: 1.25rem 0;
+      text-align: center;
+    }
+    .image-slot:hover { border-color: var(--orange); background: var(--bg-card-hover); }
+    .image-slot .slot-icon { font-size: 2rem; opacity: 0.5; }
+    .image-slot .slot-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+    .image-slot .slot-hint  { font-size: 0.75rem; color: var(--border); }
+
+    /* ── Pillar cards ── */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .pillar-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.4rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+    .pillar-card:hover {
+      border-color: var(--blue); transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26,143,227,0.1);
+    }
+    .pillar-number {
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--orange);
+    }
+    .pillar-title {
+      font-size: 0.95rem; font-weight: 700; color: var(--text-primary);
+    }
+    .pillar-desc {
+      font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;
+    }
+    .pillar-icon {
+      width: 40px; height: 40px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 0.25rem;
+    }
+    .pillar-icon.blue   { background: rgba(26,143,227,0.15); }
+    .pillar-icon.orange { background: rgba(255,153,0,0.15); }
+    .pillar-icon.green  { background: rgba(56,195,108,0.15); }
+
+    /* ── Info callout ── */
+    .callout {
+      background: rgba(26,143,227,0.07);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem; color: var(--text-muted); line-height: 1.7;
+    }
+    .callout strong { color: var(--blue-light); }
+
+    /* ── Back link ── */
+    .back-bar {
+      max-width: 900px; margin: 0 auto;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--bg-surface); border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem; text-align: center;
+      color: var(--text-muted); font-size: 0.8rem;
+    }
+    footer .footer-brand { font-weight: 700; color: var(--orange); margin-bottom: 0.25rem; }
+
+    @media (max-width: 680px) {
+      .navbar-brand span:not(.highlight) { display: none; }
+      .content { padding: 2rem 1.25rem 3rem; }
+      .page-hero { padding: 2rem 1.25rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-brand">
+      <div class="logo-icon" aria-hidden="true">🛒</div>
+      <span>Amazon <span class="highlight">ZA</span> 3P Events</span>
+    </div>
+    <a href="index.html" class="btn btn-ghost">← Back to Playbook</a>
+  </nav>
+
+  <!-- ── Breadcrumb ── -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a>
+    <span>›</span>
+    <span style="color: var(--text-primary);">What Constitutes a 3P Event</span>
+  </nav>
+
+  <!-- ── Page Hero ── -->
+  <header class="page-hero">
+    <div class="page-tag">📌 Topic 01</div>
+    <h1>What Constitutes a <span class="accent">3P Event</span>?</h1>
+    <p>Defining the scope, pillars, and strategy behind Amazon ZA's third-party seller events programme.</p>
+  </header>
+
+  <!-- ── Content ── -->
+  <main class="content">
+
+    <!-- Definition -->
+    <div class="content-block">
+      <h2><span class="dot" aria-hidden="true"></span> Definition</h2>
+      <p>A 3P event is defined as a structured gathering of <strong style="color:var(--text-primary);">more than 10 Sellers</strong> that requires catering, a venue, and potentially travel if hosted outside of Cape Town.</p>
+      <p>Events are distinct from other Seller touchpoints such as one-on-one account manager calls, email campaigns, or self-serve training resources. The key differentiators are the physical or virtual gathering format, the minimum attendee threshold, and the logistical requirements they impose.</p>
+
+      <!-- Image slot 1 -->
+      <div class="image-slot" role="img" aria-label="Upload an image illustrating the event definition">
+        <div class="slot-icon">🖼️</div>
+        <div class="slot-label">Upload image — Event definition visual</div>
+        <div class="slot-hint">Replace this placeholder by editing the HTML and swapping in an &lt;img&gt; tag</div>
+      </div>
+    </div>
+
+    <!-- Events vs Touchpoints -->
+    <div class="content-block">
+      <h2><span class="dot" aria-hidden="true"></span> Events vs. Other Seller Touchpoints</h2>
+      <p>Not all Seller interactions are events. The table below illustrates where 3P events sit relative to other touchpoints:</p>
+
+      <div style="overflow-x:auto; margin-top:1rem;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.875rem;">
+          <thead>
+            <tr style="background:var(--bg-surface);">
+              <th style="text-align:left; padding:0.75rem 1rem; border-bottom:1px solid var(--border); color:var(--text-muted); font-weight:600; text-transform:uppercase; font-size:0.72rem; letter-spacing:0.06em;">Touchpoint</th>
+              <th style="text-align:left; padding:0.75rem 1rem; border-bottom:1px solid var(--border); color:var(--text-muted); font-weight:600; text-transform:uppercase; font-size:0.72rem; letter-spacing:0.06em;">Format</th>
+              <th style="text-align:left; padding:0.75rem 1rem; border-bottom:1px solid var(--border); color:var(--text-muted); font-weight:600; text-transform:uppercase; font-size:0.72rem; letter-spacing:0.06em;">Min. Sellers</th>
+              <th style="text-align:left; padding:0.75rem 1rem; border-bottom:1px solid var(--border); color:var(--text-muted); font-weight:600; text-transform:uppercase; font-size:0.72rem; letter-spacing:0.06em;">Counts as Event?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:0.75rem 1rem; color:var(--text-primary); font-weight:600;">Seller Roadshow</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">In-person, large-scale</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">10+</td>
+              <td style="padding:0.75rem 1rem;"><span style="background:rgba(56,195,108,0.15);color:#4ade80;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.75rem;font-weight:700;">✓ Yes</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:0.75rem 1rem; color:var(--text-primary); font-weight:600;">Virtual Workshop</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">Virtual, structured</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">10+</td>
+              <td style="padding:0.75rem 1rem;"><span style="background:rgba(56,195,108,0.15);color:#4ade80;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.75rem;font-weight:700;">✓ Yes</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:0.75rem 1rem; color:var(--text-primary); font-weight:600;">Sponsored 3rd-Party Event</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">External venue, co-hosted</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">10+</td>
+              <td style="padding:0.75rem 1rem;"><span style="background:rgba(56,195,108,0.15);color:#4ade80;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.75rem;font-weight:700;">✓ Yes</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:0.75rem 1rem; color:var(--text-primary); font-weight:600;">AM Check-in Call</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">1:1 call</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">1</td>
+              <td style="padding:0.75rem 1rem;"><span style="background:rgba(239,68,68,0.12);color:#f87171;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.75rem;font-weight:700;">✗ No</span></td>
+            </tr>
+            <tr>
+              <td style="padding:0.75rem 1rem; color:var(--text-primary); font-weight:600;">Email Campaign</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">Async, digital</td>
+              <td style="padding:0.75rem 1rem; color:var(--text-muted);">Any</td>
+              <td style="padding:0.75rem 1rem;"><span style="background:rgba(239,68,68,0.12);color:#f87171;padding:0.15rem 0.5rem;border-radius:4px;font-size:0.75rem;font-weight:700;">✗ No</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Our Events Strategy -->
+    <div class="content-block">
+      <h2><span class="dot" aria-hidden="true"></span> Our Events Strategy</h2>
+      <p>Our events strategy is organised into three pillars that together cover the full Seller lifecycle — from acquisition through to scale.</p>
+
+      <!-- Image slot 2 -->
+      <div class="image-slot" role="img" aria-label="Upload a strategy overview image or diagram">
+        <div class="slot-icon">📊</div>
+        <div class="slot-label">Upload image — Strategy overview or framework diagram</div>
+        <div class="slot-hint">Replace this placeholder by editing the HTML and swapping in an &lt;img&gt; tag</div>
+      </div>
+
+      <!-- Three pillars -->
+      <div class="pillars">
+        <div class="pillar-card">
+          <div class="pillar-icon blue" aria-hidden="true">🤝</div>
+          <div class="pillar-number">Pillar 01</div>
+          <div class="pillar-title">Sponsored Events</div>
+          <p class="pillar-desc">Hosted by a third party that we leverage to gain access to a pool of potential Sellers. These events focus on new Seller acquisition and brand awareness for Amazon ZA.</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-icon orange" aria-hidden="true">🎓</div>
+          <div class="pillar-number">Pillar 02</div>
+          <div class="pillar-title">Virtual &amp; In-Person Workshops</div>
+          <p class="pillar-desc">Targeted events with existing Sellers focused on FBA and Deals (Section 4). Designed to deepen Seller capability and drive adoption of key programmes.</p>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-icon green" aria-hidden="true">🚌</div>
+          <div class="pillar-number">Pillar 03</div>
+          <div class="pillar-title">Seller Roadshows</div>
+          <p class="pillar-desc">Large-scale events designed as a touchpoint for SSR Sellers (Section 6). Focused on scale, retention, and establishing Amazon as the partner of choice.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs & ROI -->
+    <div class="content-block">
+      <h2><span class="dot" aria-hidden="true"></span> KPIs &amp; Success Measurement</h2>
+      <p>Every event must have clear KPIs relevant to the event type. Events are less a support centre for managed Sellers and more a lever we will use to drive scalable 3P growth through SSR.</p>
+      <p>We will provide support to event owners in calculating these goals as well as ROI, and we are in the process of developing a ROI calculator to measure return on investment across event types.</p>
+
+      <div class="callout">
+        <strong>ROI Calculator — Coming Soon.</strong> We are building a standardised ROI calculator that will allow event owners to measure return on investment consistently across all three event pillars. Contact the 3P Events Lead to be notified when it launches.
+      </div>
+
+      <!-- Image slot 3 -->
+      <div class="image-slot" role="img" aria-label="Upload a KPI framework or ROI illustration">
+        <div class="slot-icon">📈</div>
+        <div class="slot-label">Upload image — KPI framework or ROI visual</div>
+        <div class="slot-hint">Replace this placeholder by editing the HTML and swapping in an &lt;img&gt; tag</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── Back link ── -->
+  <div class="back-bar">
+    <a href="index.html" class="btn btn-ghost" style="font-size:0.85rem;">← Back to Playbook home</a>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer role="contentinfo">
+    <div class="footer-brand">Amazon ZA 3P Events Playbook</div>
+    <div>Last updated: September 2026 · Owned by ZA 3P Events Team</div>
+  </footer>
+
+</body>
+</html>
