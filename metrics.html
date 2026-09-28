@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metrics Dashboard — Amazon ZA 3P Events</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:      #0d1117;
+      --bg-surface:   #161b22;
+      --bg-card:      #1c2330;
+      --bg-card-hover:#1f2937;
+      --border:       #30363d;
+      --blue:         #1a8fe3;
+      --blue-light:   #58b4ff;
+      --orange:       #ff9900;
+      --orange-light: #ffb84d;
+      --green:        #4ade80;
+      --text-primary: #e6edf3;
+      --text-muted:   #8b949e;
+      --radius:       10px;
+      --transition:   0.2s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Amazon Ember", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg-base); color: var(--text-primary);
+      min-height: 100vh; line-height: 1.6;
+    }
+    a { color: var(--blue-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 60px;
+      background: #0a0e14; border-bottom: 1px solid var(--border); gap: 1rem;
+    }
+    .navbar-brand {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 1.05rem; font-weight: 700; color: var(--text-primary); white-space: nowrap;
+    }
+    .navbar-brand .logo-icon {
+      width: 32px; height: 32px; background: var(--orange); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .navbar-brand span.highlight { color: var(--orange); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 1rem; border-radius: 6px; font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; transition: all var(--transition); border: none;
+    }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--bg-surface); color: var(--text-primary); text-decoration: none; }
+    .btn-orange { background: var(--orange); color: #0d1117; }
+    .btn-orange:hover { background: var(--orange-light); text-decoration: none; }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      max-width: 960px; margin: 0 auto; padding: 1.25rem 2rem 0;
+      font-size: 0.82rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .breadcrumb a { color: var(--text-muted); }
+    .breadcrumb a:hover { color: var(--blue-light); }
+
+    /* ── Page Hero ── */
+    .page-hero {
+      max-width: 960px; margin: 0 auto; padding: 2.5rem 2rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-tag {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,153,0,0.12); border: 1px solid rgba(255,153,0,0.3);
+      color: var(--orange); padding: 0.2rem 0.65rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .page-hero h1 {
+      font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800;
+      line-height: 1.25; margin-bottom: 0.6rem; letter-spacing: -0.02em;
+    }
+    .page-hero h1 .accent { color: var(--orange); }
+    .page-hero p { font-size: 0.95rem; color: var(--text-muted); max-width: 680px; }
+
+    /* ── Content wrapper ── */
+    .content { max-width: 960px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+    /* ── Section heading (matches BR style) ── */
+    .highlights-heading {
+      font-size: 1.5rem; font-weight: 800; color: var(--orange);
+      margin-bottom: 0.25rem;
+    }
+
+    /* ── Event block ── */
+    .event-block { margin-bottom: 3.5rem; }
+    .event-block + .event-block { padding-top: 3rem; border-top: 1px solid var(--border); }
+
+    .event-title {
+      font-size: 1.25rem; font-weight: 800; color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+    .event-meta {
+      font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;
+      font-style: italic;
+    }
+    .event-desc {
+      font-size: 0.92rem; color: var(--text-muted); line-height: 1.75;
+      max-width: 760px; margin-bottom: 1.5rem;
+    }
+
+    /* ── Video container ── */
+    .video-container {
+      background: #0a0e14;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+      max-width: 640px;
+    }
+    .video-container iframe {
+      width: 100%; aspect-ratio: 16/9; display: block; border: none;
+    }
+    .video-fallback {
+      padding: 2.5rem 2rem;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 1rem; text-align: center;
+    }
+    .video-fallback .play-icon {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: rgba(255,153,0,0.15); border: 2px solid rgba(255,153,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+    }
+    .video-fallback p { font-size: 0.85rem; color: var(--text-muted); max-width: 380px; line-height: 1.6; }
+    .video-note {
+      font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1.5rem;
+    }
+    .video-note a { color: var(--orange); }
+
+    /* ── Stat cards grid (matches BR layout) ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .stat-card:hover {
+      border-color: var(--orange);
+      transform: translateY(-2px);
+    }
+    .stat-card .stat-value {
+      font-size: 2rem; font-weight: 800; color: var(--orange);
+      line-height: 1.1; margin-bottom: 0.35rem;
+    }
+    .stat-card .stat-label {
+      font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;
+    }
+    .stat-card .stat-change {
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--green); margin-top: 0.25rem;
+    }
+
+    /* ── Placeholder stat card ── */
+    .stat-card.placeholder {
+      border-style: dashed; opacity: 0.6;
+    }
+    .stat-card.placeholder .stat-value { color: var(--border); }
+
+    /* ── Callout ── */
+    .callout {
+      background: rgba(26,143,227,0.07); border-left: 3px solid var(--blue);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem; font-size: 0.88rem; color: var(--text-muted);
+      line-height: 1.7; margin-top: 1.5rem;
+    }
+    .callout strong { color: var(--blue-light); }
+
+    /* ── Add event CTA ── */
+    .add-event-cta {
+      background: var(--bg-card); border: 2px dashed var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      text-align: center; margin-top: 2rem;
+    }
+    .add-event-cta h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .add-event-cta p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+    /* ── Back / footer ── */
+    .back-bar {
+      max-width: 960px; margin: 0 auto; padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+    footer {
+      background: var(--bg-surface); border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem; text-align: center;
+      color: var(--text-muted); font-size: 0.8rem;
+    }
+    footer .footer-brand { font-weight: 700; color: var(--orange); margin-bottom: 0.25rem; }
+
+    @media (max-width: 680px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .content { padding: 2rem 1.25rem 3rem; }
+    }
+    @media (max-width: 420px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="navbar-brand">
+      <div class="logo-icon" aria-hidden="true">🛒</div>
+      <span>Amazon <span class="highlight">ZA</span> 3P Events</span>
+    </div>
+    <a href="index.html" class="btn btn-ghost">← Back to Playbook</a>
+  </nav>
+
+  <!-- ── Breadcrumb ── -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="index.html">Home</a>
+    <span style="color:var(--border);">›</span>
+    <span style="color:var(--text-primary);">Metrics Dashboard</span>
+  </nav>
+
+  <!-- ── Page Hero ── -->
+  <header class="page-hero">
+    <div class="page-tag">📊 Performance</div>
+    <h1>2026 <span class="accent">Event Highlights</span> &amp; Metrics</h1>
+    <p>Key performance data for all ZA 3P events. Updated after each event closes.</p>
+  </header>
+
+  <!-- ── Content ── -->
+  <main class="content">
+
+    <h2 class="highlights-heading">2026 Highlights</h2>
+
+    <!-- ── Seller Summit 2026 ── -->
+    <div class="event-block" id="seller-summit">
+
+      <div class="event-title">ZA Seller Summit 2026</div>
+      <div class="event-meta">26 March 2026 — Cape Town, South Africa · Flagship Annual Event</div>
+      <p class="event-desc">
+        Our flagship event of 2026 and the first large-scale Seller Summit hosted by Amazon ZA.
+        Designed as a high-impact touchpoint for SSR Sellers, the Summit brought together South Africa's
+        top third-party Sellers for a full day of keynotes, workshops, and networking — establishing
+        Amazon as the partner of choice for South African Sellers.
+      </p>
+
+      <!-- Video -->
+      <div class="video-container" role="region" aria-label="Seller Summit 2026 event video">
+        <iframe src="https://amazonzaf.sharepoint.com/sites/ZAMarketplace3P/_layouts/15/embed.aspx?UniqueId=aeab6b3c-bd84-4993-8cfe-3fecb8c4baed&embed=%7B%22ust%22%3Atrue%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen title="Sellers Summit 2026 Recap"></iframe>
+      </div>
+      <div class="video-note">
+        🔒 Amazonian access only · <a href="https://amazonzaf.sharepoint.com/:v:/s/ZAMarketplace3P/IQA8a6uuhL2TSYz-P-y4xLrtAUejGtnyPWdkqWDd6Yuueu0?e=Hxnf9F" target="_blank" rel="noopener">Open in SharePoint →</a>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-grid" role="list" aria-label="Seller Summit 2026 metrics">
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-value">—</div>
+          <div class="stat-label">in-person attendees</div>
+          <div class="stat-change">Add figure</div>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-value">—</div>
+          <div class="stat-label">NPS score</div>
+          <div class="stat-change">Add figure</div>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-value">—</div>
+          <div class="stat-label">unique Sellers registered</div>
+          <div class="stat-change">Add figure</div>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-value">—</div>
+          <div class="stat-label">workshops / sessions run</div>
+          <div class="stat-change">Add figure</div>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-value">—</div>
+          <div class="stat-label">social media reach</div>
+          <div class="stat-change">Add figure</div>
+        </div>
+
+        <div class="stat-card" role="listitem">
+          <div class="stat-value">—</div>
+          <div class="stat-label">post-event FBA sign-ups</div>
+          <div class="stat-change">Add figure</div>
+        </div>
+
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> Replace the "—" placeholders above with actual post-event figures.
+        To edit, open <code style="background:var(--bg-card);padding:0.1rem 0.35rem;border-radius:4px;font-size:0.82rem;">metrics.html</code>
+        in GitHub and update the <code style="background:var(--bg-card);padding:0.1rem 0.35rem;border-radius:4px;font-size:0.82rem;">stat-value</code>
+        text for each card. The ROI calculator (coming soon) will provide additional post-event analysis.
+      </div>
+
+    </div>
+    <!-- end Seller Summit block -->
+
+    <!-- ── Add future events here ── -->
+    <div class="add-event-cta" role="region" aria-label="Add future event data">
+      <h3 style="color:var(--text-muted);">+ Add next event</h3>
+      <p>As each 2026 event concludes, duplicate the event block above and fill in the metrics. Upcoming events: Black Friday Warm-Up (Oct 27), Black Friday / Cyber Monday (Nov 28), Festive Season (Dec 9).</p>
+      <a href="index.html#events" class="btn btn-ghost" style="font-size:0.83rem;">View events calendar →</a>
+    </div>
+
+  </main>
+
+  <!-- ── Back link ── -->
+  <div class="back-bar">
+    <a href="index.html" class="btn btn-ghost" style="font-size:0.85rem;">← Back to Playbook home</a>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer role="contentinfo">
+    <div class="footer-brand">Amazon ZA 3P Events Playbook</div>
+    <div>Last updated: September 2026 · Owned by ZA 3P Events Team</div>
+  </footer>
+
+</body>
+</html>
